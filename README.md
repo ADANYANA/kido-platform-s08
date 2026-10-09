@@ -67,3 +67,10 @@ La consulta de notificaciones falló cuando el Gateway no encontraba una instanc
 ## Base compartida
 
 Esta entrega presenta mi verificación individual. Los componentes del proyecto conservan la autoría de sus respectivos colaboradores.
+
+## Intercambio S08 de ida y vuelta
+
+Pago publica `compra.confirmada`, Inscripción devuelve `inscripcion.creada` y Pago marca el acceso sincronizado. Se conserva `pago.aprobado` como evento adicional para Notificación. Ver [contratos y evidencia](docs/s08-ida-vuelta-kido.md).
+
+    powershell -ExecutionPolicy Bypass -File .\scripts\demo-s8-ida-vuelta.ps1
+    powershell -ExecutionPolicy Bypass -File .\scripts\demo-s8-ida-vuelta.ps1 -Desacople

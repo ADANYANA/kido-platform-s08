@@ -153,6 +153,7 @@ services:
   kido-inscripcion-ms:
     build: ./services/kido-inscripcion-ms
     environment:
+      KAFKA_BOOTSTRAP_SERVERS: kido-kafka:9092
       SPRING_PROFILES_ACTIVE: prod
       CONFIG_SERVER_URL: http://kido-config:8888
       DB_HOST: postgres-inscripcion
@@ -162,6 +163,7 @@ services:
       DB_PASS: ${DB_PASS:?Define DB_PASS en .env}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://kido-eureka:8761/eureka
     depends_on:
+      kido-kafka: {condition: service_healthy}
       postgres-inscripcion: {condition: service_healthy}
       kido-eureka: {condition: service_started}
     networks: [kido-net]

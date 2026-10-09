@@ -37,11 +37,24 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
       properties:
         spring.json.add.type.headers: false
+    consumer:
+      group-id: kido-pago-ms
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+        spring.json.value.default.type: pe.edu.upeu.pago.event.InscripcionCreadaEvento
+        spring.json.trusted.packages: pe.edu.upeu.pago.event
+        spring.json.use.type.headers: false
+    listener:
+      ack-mode: record
 kido:
   pagos:
-    comision: 0.10
+    comision: 0.1
     dias-retencion: 7
-    retiro-minimo: 50.00
+    retiro-minimo: 50.0
     dias-reembolso: 7
     progreso-max-reembolso: 20
     permitir-simulacion: false
@@ -52,6 +65,8 @@ app:
   kafka:
     topic:
       pagos: kido-pago-eventos
+      compras: kido-compra-eventos
+      inscripciones: kido-inscripcion-eventos
 springdoc:
   swagger-ui:
     enabled: false
@@ -85,7 +100,7 @@ resilience4j:
         permittedNumberOfCallsInHalfOpenState: 2
         automaticTransitionFromOpenToHalfOpenEnabled: true
         ignoreExceptions:
-          - feign.FeignException$NotFound
+        - feign.FeignException$NotFound
       KidoInscripcionCrearCompra:
         slidingWindowSize: 5
         minimumNumberOfCalls: 3

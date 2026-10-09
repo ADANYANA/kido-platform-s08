@@ -23,5 +23,6 @@ public class OrdenCompra {
  @Column(name="inscripcion_sincronizada",nullable=false) private boolean inscripcionSincronizada;
  @Column(name="fecha_creacion",nullable=false) private LocalDateTime fechaCreacion;
  @Column(name="fecha_aprobacion") private LocalDateTime fechaAprobacion;
+ @Column(name="leccion_ids_snapshot",nullable=false,columnDefinition="text") private String leccionIdsSnapshot="";
  public enum EstadoOrden { PENDIENTE, PAGO_INICIADO, APROBADA, RECHAZADA, REEMBOLSADA }
 }

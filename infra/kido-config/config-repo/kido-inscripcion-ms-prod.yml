@@ -1,6 +1,5 @@
 server:
   port: 8080
-
 spring:
   datasource:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
@@ -17,13 +16,31 @@ spring:
     properties:
       hibernate:
         format_sql: false
-
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kido-kafka:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+    consumer:
+      group-id: kido-inscripcion-ms
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+        spring.json.value.default.type: pe.edu.upeu.inscripcion.event.CompraConfirmadaEvento
+        spring.json.trusted.packages: pe.edu.upeu.inscripcion.event
+        spring.json.use.type.headers: false
+    listener:
+      ack-mode: record
 springdoc:
   swagger-ui:
     enabled: false
   api-docs:
     enabled: false
-
 management:
   endpoints:
     web:
@@ -38,3 +55,8 @@ eureka:
   client:
     service-url:
       defaultZone: http://kido-eureka:8761/eureka
+app:
+  kafka:
+    topic:
+      compras: kido-compra-eventos
+      inscripciones: kido-inscripcion-eventos

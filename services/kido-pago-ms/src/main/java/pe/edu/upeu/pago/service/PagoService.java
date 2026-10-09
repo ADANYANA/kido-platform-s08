@@ -21,7 +21,7 @@ public class PagoService {
  private final OrdenCompraRepository ordenRepo;
  private final MovimientoSaldoRepository movimientoRepo;
  private final CursoClient cursoClient;
- private final InscripcionClient inscripcionClient;
+ private final pe.edu.upeu.pago.messaging.CompraEventosProducer compraEventosProducer;
  private final PagoEventosProducer pagoEventosProducer;
  private final MercadoPagoClient mercadoPagoClient;
  @Value("${kido.pagos.comision:0.10}") private BigDecimal comision;
@@ -49,6 +49,7 @@ public class PagoService {
    OrdenCompra o=new OrdenCompra(); o.setEstudianteId(req.estudianteId()); o.setCursoId(c.id()); o.setDocenteId(c.docenteId()); o.setCursoTitulo(c.titulo());
    o.setMontoTotal(c.precio().setScale(2,RoundingMode.HALF_UP)); o.setPorcentajeComision(comision.multiply(new BigDecimal("100")).setScale(2,RoundingMode.HALF_UP));
    o.setComisionKido(o.getMontoTotal().multiply(comision).setScale(2,RoundingMode.HALF_UP)); o.setMontoDocente(o.getMontoTotal().subtract(o.getComisionKido()));
+   o.setLeccionIdsSnapshot((c.leccionIds()==null?List.<Long>of():c.leccionIds()).stream().map(String::valueOf).collect(java.util.stream.Collectors.joining(",")));
    o.setEstado(OrdenCompra.EstadoOrden.PENDIENTE); o.setFechaCreacion(LocalDateTime.now());
    return map(ordenRepo.save(o));
  }
@@ -111,7 +112,10 @@ public class PagoService {
  @Transactional
  public OrdenResponse reintentarInscripcion(Long id){OrdenCompra o=buscar(id); if(o.getEstado()!=OrdenCompra.EstadoOrden.APROBADA) throw new IllegalStateException("La orden no está aprobada"); sincronizarInscripcion(o); return map(o);}
  private void sincronizarInscripcion(OrdenCompra o){
-   try{CursoCompraDto c=cursoClient.obtener(o.getCursoId()); inscripcionClient.crearCompra(o.getEstudianteId(),o.getCursoId(),c.leccionIds()==null?List.of():c.leccionIds()); o.setInscripcionSincronizada(true); ordenRepo.save(o);}catch(Exception e){o.setInscripcionSincronizada(false); ordenRepo.save(o);}
+   List<Long> lecciones=o.getLeccionIdsSnapshot().isBlank()?List.of():Arrays.stream(o.getLeccionIdsSnapshot().split(",")).map(Long::valueOf).toList();
+   compraEventosProducer.publicarTrasCommit(new pe.edu.upeu.pago.event.CompraConfirmadaEvento(
+       "compra.confirmada",o.getId(),o.getEstudianteId(),o.getCursoId(),lecciones,
+       o.getEstado().name(),"kido-pago-ms",Instant.now().toEpochMilli()));
  }
 
  @Transactional @Scheduled(fixedDelayString="${kido.pagos.liberacion-ms:60000}")
