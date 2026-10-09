@@ -1,0 +1,17 @@
+site_name: Kido - Desarrollo de aplicaciones distribuidas
+theme:
+  name: material
+  palette:
+    primary: blue grey
+    accent: blue
+nav:
+  - Inicio: index.md
+  - Brief técnico: brief-tecnico.md
+  - Producto Unidad 1: u1-producto.md
+  - Guía S5: guia-s5.md
+  - Preparación de GitHub: github.md
+  - Aporte Midwar: continuacion-midwar.md
+  - Avance técnico Midwar: avance-midwar.md
+  - API Midwar: api-midwar.md
+  - Seguridad Keycloak: seguridad-keycloak.md
+  - S08 Mensajería asíncrona: s08-mensajeria-asincrona.md

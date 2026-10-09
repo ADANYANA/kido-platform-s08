@@ -1,0 +1,54 @@
+server:
+  port: 8080
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://kido-keycloak:8080/realms/kido/protocol/openid-connect/certs}
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: kido-cursos
+              uri: lb://kido-curso-ms
+              predicates:
+                - Path=/api/v1/cursos/**
+            - id: kido-inscripciones
+              uri: lb://kido-inscripcion-ms
+              predicates:
+                - Path=/api/v1/inscripciones/**
+            - id: kido-pagos
+              uri: lb://kido-pago-ms
+              predicates:
+                - Path=/api/v1/pagos/**
+            - id: kido-retiros
+              uri: lb://kido-pago-ms
+              predicates:
+                - Path=/api/v1/retiros/**
+            - id: kido-reembolsos
+              uri: lb://kido-pago-ms
+              predicates:
+                - Path=/api/v1/reembolsos/**
+            - id: kido-notificaciones
+              uri: lb://kido-notificacion-ms
+              predicates:
+                - Path=/api/v1/notificaciones/**
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${random.value}
+  client:
+    service-url:
+      defaultZone: http://kido-eureka:8761/eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: never
